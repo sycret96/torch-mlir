@@ -52,7 +52,7 @@ endif()
 # folder but instead want to use stablehlo that is part of top level compiler project.
 # With TORCH_MLIR_USE_EXTERNAL_STABLEHLO enables, it is assumed that top level compiler project makes
 # stablehlo targets AND includes available (for example with `add_subdirectory` and `include_directories`).
-option(TORCH_MLIR_USE_EXTERNAL_STABLEHLO "Use stablehlo from top level project" OFF)
+option(TORCH_MLIR_USE_EXTERNAL_STABLEHLO "Use stablehlo from top level project" ON)
 
 option(TORCH_MLIR_ENABLE_TOSA "Add TOSA support" ON)
 if(TORCH_MLIR_ENABLE_TOSA)
@@ -130,7 +130,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR OR TORCH_MLIR_OUT_OF_TREE_
 
   # Don't try to compile the python extensions at the moment. We need
   # to import lots of dependencies from AddMLIRPython to make this work.
-  set(MLIR_ENABLE_BINDINGS_PYTHON ON)
+  # Respect the value set from command line
+  # set(MLIR_ENABLE_BINDINGS_PYTHON ON)
 
   set(TORCH-MLIR_BUILT_STANDALONE ON)
   set(BACKEND_PACKAGE_STRING "LLVM ${LLVM_PACKAGE_VERSION}")
@@ -259,6 +260,13 @@ if (TORCH_MLIR_ENABLE_STABLEHLO AND NOT TORCH_MLIR_USE_EXTERNAL_STABLEHLO)
     ${CMAKE_CURRENT_BINARY_DIR}/stablehlo
     EXCLUDE_FROM_ALL)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/externals/stablehlo)
+elseif(TORCH_MLIR_ENABLE_STABLEHLO AND TORCH_MLIR_USE_EXTERNAL_STABLEHLO)
+  # Use external stablehlo from specified path
+  set(STABLEHLO_SOURCE_DIR "/home/lifan/workspace/copy_srda_compiler/srda_compiler/third-party/stablehlo")
+  set(STABLEHLO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/stablehlo")
+  add_subdirectory(${STABLEHLO_SOURCE_DIR} ${STABLEHLO_BINARY_DIR} EXCLUDE_FROM_ALL)
+  include_directories(${STABLEHLO_SOURCE_DIR})
+  include_directories(${STABLEHLO_BINARY_DIR})
 endif()
 
 #-------------------------------------------------------------------------------
