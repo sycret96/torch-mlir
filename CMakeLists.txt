@@ -198,9 +198,6 @@ add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(tools)
 
-add_custom_target(check-torch-mlir-all)
-add_dependencies(check-torch-mlir-all check-torch-mlir)
-
 if(MLIR_ENABLE_BINDINGS_PYTHON)
   # If parent projects want to configure where to place the python packages,
   # respect that.
@@ -208,8 +205,6 @@ if(MLIR_ENABLE_BINDINGS_PYTHON)
     set(TORCH_MLIR_PYTHON_PACKAGES_DIR "${CMAKE_CURRENT_BINARY_DIR}/python_packages")
   endif()
 endif()
-
-add_subdirectory(test)
 
 if (NOT LLVM_INSTALL_TOOLCHAIN_ONLY)
   install(DIRECTORY include/torch-mlir include/torch-mlir-c
@@ -262,7 +257,6 @@ if (TORCH_MLIR_ENABLE_STABLEHLO AND NOT TORCH_MLIR_USE_EXTERNAL_STABLEHLO)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/externals/stablehlo)
 elseif(TORCH_MLIR_ENABLE_STABLEHLO AND TORCH_MLIR_USE_EXTERNAL_STABLEHLO)
   # Use external stablehlo from specified path
-  set(STABLEHLO_SOURCE_DIR "/home/lifan/workspace/copy_srda_compiler/srda_compiler/third-party/stablehlo")
   set(STABLEHLO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/stablehlo")
   add_subdirectory(${STABLEHLO_SOURCE_DIR} ${STABLEHLO_BINARY_DIR} EXCLUDE_FROM_ALL)
   include_directories(${STABLEHLO_SOURCE_DIR})
@@ -285,4 +279,11 @@ add_subdirectory(projects)
 # Finish with top-level Python bindings so it can handle additional deps.
 if(MLIR_ENABLE_BINDINGS_PYTHON)
   add_subdirectory(python)
+elseif(NOT TARGET TorchMLIRPythonModules)
+  add_custom_target(TorchMLIRPythonModules)
 endif()
+
+add_custom_target(check-torch-mlir-all)
+add_dependencies(check-torch-mlir-all check-torch-mlir)
+
+add_subdirectory(test)
